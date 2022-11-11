@@ -180,28 +180,3 @@ class mobileView extends StatelessWidget {
   }
 }
 
-class Details{
-  final String zone;
-  final double total;
-  final double jan;
-  final double feb;
-  final double mar;
-  final double Apr;
-  final double May;
-  final double June;
-  final double july;
-  final double Aug;
-
-  Details({required this.zone,required this.total,required this.jan,required this.feb,required this.mar,required this.Apr,required this.May,required this.June,required this.july,required this.Aug});
-
-  static List<Details> getDetails(){
-    return [
-      Details(zone:"CR",total: 100,jan:10,feb:10,mar:10,Apr:10,May:10,June:5,july:5,Aug:10),
-      Details(zone:"CR",total: 100,jan:10,feb:10,mar:10,Apr:10,May:10,June:5,july:5,Aug:10),
-      Details(zone:"CR",total: 100,jan:10,feb:10,mar:10,Apr:10,May:10,June:5,july:5,Aug:10),
-      Details(zone:"CR",total: 100,jan:10,feb:10,mar:10,Apr:10,May:10,June:5,july:5,Aug:10),
-      Details(zone:"CR",total: 100,jan:10,feb:10,mar:10,Apr:10,May:10,June:5,july:5,Aug:10),
-    ];
-  }
-
-}
