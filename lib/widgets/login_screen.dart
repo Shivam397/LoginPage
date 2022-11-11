@@ -1,4 +1,4 @@
-import 'dart:html';
+
 import 'dart:ui';
 import 'dart:math';
 import 'package:email_validator/email_validator.dart';
@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:mailto/mailto.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 
 class LoginScreen extends StatefulWidget {
   @override

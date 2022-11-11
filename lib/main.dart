@@ -1,56 +1,56 @@
-// ignore_for_file: use_key_in_widget_constructors
+// // ignore_for_file: use_key_in_widget_constructors
 
 import 'dart:async';
 import 'dart:math';
 
+import 'package:first_app/otherForms/coach_sick_details.dart';
+import 'package:first_app/otherForms/rake_consist.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/diagnostics.dart';
-import 'app_screens/login_screen.dart';
+import 'otherForms/Add_Bill_Units_view.dart';
+import 'otherForms/create_employee.dart';
+import 'otherForms/fetch_rake.dart';
+import 'otherForms/mobile_view_table.dart';
+import 'otherForms/rake_maintenance.dart';
+import 'otherForms/place_order.dart';
+import 'otherForms/sfGrid.dart';
+import 'widgets/login_screen.dart';
 import 'package:get/get.dart';
-import './app_screens/splash_screen.dart'; 
+import './widgets/splash_screen.dart'; 
 
 void main() {
-  runApp(MaterialApp(
+  runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
-    home: homeScreen(),
+    home: mobileView(),
   ));
 }
 
-// 0xFF006064
-ColorScheme defaultColorScheme = const ColorScheme(
-  primary: Color(0xff000000),
-  secondary: Color(0xff03DAC6),
-  surface: Color(0xff181818),
-  background: Color(0XFFE3F2FD),
-  error: Color(0xffCF6679),
-  onPrimary: Color(0xff000000),
-  onSecondary: Color(0xff000000),
-  onSurface: Color(0xffffffff),
-  onBackground: Color(0xffffffff),
-  onError: Color(0xff000000),
-  brightness: Brightness.dark,
-);
 
-class homeScreen extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return _homescreen();
-  }
-}
+// import 'package:flutter/material.dart';
 
-class _homescreen extends State<homeScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      //appBar: AppBar(title: Text("Login Screen")),
-      theme: ThemeData(
-        colorScheme: defaultColorScheme,
-        primarySwatch: Colors.blue,
-      ),
-      home: splashScreen(),
-    );
-  }
-}
+// void main() {
+//   runApp(const MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   const MyApp({Key? key}) : super(key: key);
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       // Remove the debug banner
+//         debugShowCheckedModeBanner: false,
+//         theme: ThemeData(primarySwatch: Colors.indigo),
+//         home: const HomeScreen());
+//   }
+// }
+
+// class HomeScreen extends StatefulWidget {
+//   const HomeScreen({Key? key}) : super(key: key);
+
+//   @override
+//   _HomeScreenState createState() => _HomeScreenState();
+// }
+
+
+
 
