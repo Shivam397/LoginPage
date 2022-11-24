@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:first_app/otherForms/excel_view_mobile.dart';
 import 'package:first_app/otherForms/coach_sick_details.dart';
 import 'package:first_app/otherForms/rake_consist.dart';
 import 'package:flutter/material.dart';
@@ -19,36 +20,9 @@ import './widgets/splash_screen.dart';
 void main() {
   runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
-    home: mobileView(),
+    home: form(),
   ));
 }
-
-
-// import 'package:flutter/material.dart';
-
-// void main() {
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({Key? key}) : super(key: key);
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       // Remove the debug banner
-//         debugShowCheckedModeBanner: false,
-//         theme: ThemeData(primarySwatch: Colors.indigo),
-//         home: const HomeScreen());
-//   }
-// }
-
-// class HomeScreen extends StatefulWidget {
-//   const HomeScreen({Key? key}) : super(key: key);
-
-//   @override
-//   _HomeScreenState createState() => _HomeScreenState();
-// }
-
 
 
 

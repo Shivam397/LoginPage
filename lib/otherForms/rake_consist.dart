@@ -12,12 +12,11 @@ import '../models/coach.dart';
 
 class RakeConsist extends StatelessWidget {
   var _curr = [
-    'Select..',
     'Primary Maintenance',
     'Secondary Maintenance',
     'RBPC'
   ];
-  var _currency = 'Select..'.obs;
+  var _currency = 'Primary Maintenance'.obs;
   double srl = 1;
   final _verticalScrollController = ScrollController();
   final _horizontalScrollController = ScrollController();

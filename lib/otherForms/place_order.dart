@@ -1,4 +1,13 @@
+import 'dart:io';
+
 import 'package:adaptive_scrollbar/adaptive_scrollbar.dart';
+import 'package:first_app/otherForms/csv_view_both.dart';
+import 'package:first_app/otherForms/excel_view_mobile.dart';
+import 'package:first_app/otherForms/excel_view_web.dart';
+import 'package:first_app/otherForms/modify_order.dart';
+import 'package:first_app/otherForms/new_order.dart';
+import 'package:first_app/otherForms/pdf_view_both.dart';
+// import 'package:data_table_2/paginated_data_table_2.dart';
 import 'package:first_app/widgets/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,33 +15,42 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:syncfusion_flutter_datagrid_export/export.dart';
+import '../otherForms/orderModel.dart';
 
-int _rowsPerPage=5;
+
+
+
+
+var _rowsPerPage = 0.obs;
+RxString _selectedRow = '-1'.obs;
+RxString _selectedCard = '-1'.obs;
+var no_of_rows = 1.obs;
+var ind = 0.obs;
+var i = 0;
 
 class form extends StatelessWidget {
   var _curr = ['2022-23', '2023-24', '2024-25'];
   var _currency = '2022-23'.obs;
   var newOrder = false.obs;
 
-  var _entries = ['5', '10', '15', '20'];
+  var _entries = ['5', '10', '15', '20','25','30'];
   var _entry = '5'.obs;
 
-  
   List<order> orders = <order>[];
   late OrderDataSource orderDataSource;
   double datapagerHeight = 70.0;
 
-  // List<order> orders = <order>[];
-  // late OrderDataSource orderDataSource;
+  final GlobalKey<SfDataGridState> _key = GlobalKey<SfDataGridState>();
+  
+
+  var newDataSource = DTS();
 
   
-  // PaginatedDataGridSource dataGridSource = PaginatedDataGridSource();
-  // final List<order> paginatedDataTable=<order>[];
 
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    BoxConstraints constraints;
 
     // orders = order.getOrders();
     // orderDataSource = OrderDataSource(orderData: orders);
@@ -40,14 +58,13 @@ class form extends StatelessWidget {
     orders = order.getOrders();
     orderDataSource = OrderDataSource(orderData: orders);
 
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
             child: (width > 1024)
                 ? Container(
                     margin: EdgeInsets.symmetric(
-                        vertical: 20, horizontal: width / 6),
+                        vertical: 20, horizontal: width / 8),
                     child: view(context))
                 : (width > 600 && width <= 1024)
                     ? Container(
@@ -58,33 +75,111 @@ class form extends StatelessWidget {
                     : Container(
                         margin: EdgeInsets.symmetric(
                             vertical: 20, horizontal: width / 12),
-                        child: placeOrderforMobile(),
+                        child: placeOrderforMobile(context),
                       )),
       ),
     );
   }
 
   Widget view(BuildContext context) {
-    //var dts = DTS();
-    BoxConstraints constraints;
+    var dts = DTS();
+
+    
+    double width = MediaQuery.of(context).size.width;
     final _verticalScrollController2 = ScrollController();
     final _horizontalScrollController2 = ScrollController();
     //print((context).width);
-    return 
-    Column(
+
+    List<DataRow> buildListOfDataRows(BuildContext context) {
+      List<DataRow> dataRows = [];
+
+      for (int i = 0; i < no_of_rows.value; i++) {
+        DataRow row = DataRow(
+          //color: isOdd(i) ? Colors.transparent: Colors.grey,
+          cells: [
+            DataCell(DropdownButton<String>(
+              items: _curr.map((String dropDownStringItem) {
+                return DropdownMenuItem<String>(
+                  value: dropDownStringItem,
+                  child: Text(
+                    dropDownStringItem,
+                    style: const TextStyle(fontSize: 14.0, color: Colors.black),
+                  ),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                _currency.value = newValue.toString();
+              },
+              value: _currency.value,
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            )),
+            DataCell(DropdownButton<String>(
+              items: _curr.map((String dropDownStringItem) {
+                return DropdownMenuItem<String>(
+                  value: dropDownStringItem,
+                  child: Text(
+                    dropDownStringItem,
+                    style: const TextStyle(fontSize: 14.0, color: Colors.black),
+                  ),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                _currency.value = newValue.toString();
+              },
+              value: _currency.value,
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            )),
+            DataCell(InputField(
+              placeholder: "No Of Coach",
+            )),
+            DataCell(DropdownButton<String>(
+              items: _curr.map((String dropDownStringItem) {
+                return DropdownMenuItem<String>(
+                  value: dropDownStringItem,
+                  child: Text(
+                    dropDownStringItem,
+                    style: const TextStyle(fontSize: 14.0, color: Colors.black),
+                  ),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                _currency.value = newValue.toString();
+              },
+              value: _currency.value,
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            )),
+            DataCell(InputField(
+              placeholder: "Train No",
+            )),
+            DataCell(InputField(
+              placeholder: "Pink Book No",
+            )),
+          ],
+        );
+
+        dataRows.add(row);
+      }
+
+      return dataRows;
+    }
+
+    return SingleChildScrollView(
+        child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            //Expanded(flex: 1, child:
-            LabelText(text: "Financial year"),
+            LabelText(text: "Financial Year"),
             const SizedBox(
               width: 40,
             ),
-            //),
-            // Expanded(
-            //     flex: 2,
-            //     child:
+
             Obx(() => DropdownButton<String>(
                   items: _curr.map((String dropDownStringItem) {
                     return DropdownMenuItem<String>(
@@ -108,8 +203,7 @@ class form extends StatelessWidget {
             const SizedBox(
               width: 40,
             ),
-            // Expanded(
-            //     child:
+
             Button(
               label: "Get List",
               color: Colors.orangeAccent,
@@ -121,7 +215,9 @@ class form extends StatelessWidget {
             Button(
               label: "+ Place Order",
               color: Colors.orangeAccent,
-              //width: 100,
+              callback: () {
+                newOrder.value = !newOrder.value;
+              },
             ),
 
             //)
@@ -134,7 +230,7 @@ class form extends StatelessWidget {
           children: [
             LabelText(text: "Show Entries"),
             const SizedBox(
-              width: 10,
+              width: 20,
             ),
             Obx(() => DropdownButton<String>(
                   items: _entries.map((String dropDownStringItem) {
@@ -155,17 +251,11 @@ class form extends StatelessWidget {
                     color: Colors.white,
                   ),
                 )),
-
             IconButtonWidget(
               icon: Icons.content_copy,
               size: 18,
               backgroundColor: Colors.orangeAccent.shade200,
             ),
-            // Button(
-            //   label: "COPY",
-            //   color: Colors.orangeAccent,
-            //   width: 80,
-            // ),
             const SizedBox(
               width: 10,
             ),
@@ -173,12 +263,10 @@ class form extends StatelessWidget {
               icon: FontAwesomeIcons.fileCsv,
               size: 18,
               backgroundColor: Colors.orangeAccent.shade200,
+              callback: (){
+                createCSVForWeb(_rowsPerPage.value,int.parse(_entry.value));
+              },
             ),
-            // Button(
-            //   label: "CSV",
-            //   color: Colors.orangeAccent,
-            //   width: 80,
-            // ),
             const SizedBox(
               width: 10,
             ),
@@ -186,12 +274,10 @@ class form extends StatelessWidget {
               icon: FontAwesomeIcons.fileExcel,
               size: 18,
               backgroundColor: Colors.orangeAccent.shade200,
+              callback: (){
+                createExcelForWeb(_rowsPerPage.value,int.parse(_entry.value));
+              },
             ),
-            // Button(
-            //   label: "EXCEL",
-            //   color: Colors.orangeAccent,
-            //   width: 90,
-            // ),
             const SizedBox(
               width: 10,
             ),
@@ -199,12 +285,10 @@ class form extends StatelessWidget {
               icon: FontAwesomeIcons.print,
               size: 18,
               backgroundColor: Colors.orangeAccent.shade200,
+              callback: (){
+                Get.to(createPDF(),arguments: [_rowsPerPage.value, int.parse(_entry.value)]);
+              },
             ),
-            // Button(
-            //   label: "PRINT",
-            //   color: Colors.orangeAccent,
-            //   width: 90,
-            // ),
           ],
         ),
         const SizedBox(
@@ -223,116 +307,76 @@ class form extends StatelessWidget {
           height: 10,
         ),
 
+        Obx(() => PaginatedDataTable(
+          //key: UniqueKey(),
+              showCheckboxColumn: false,
+              onPageChanged: (value) {
+                print(_rowsPerPage);
+                _rowsPerPage.value = value;
+                print(_rowsPerPage);
+              },
+              rowsPerPage: (order.getOrders().length - _rowsPerPage.value <=
+                      int.parse(_entry.value))
+                  ? order.getOrders().length - _rowsPerPage.value
+                  : int.parse(_entry.value),
 
-        // Obx(() => PaginatedDataTable(
-        //       rowsPerPage: int.parse(_entry.value),
-        //       //autoRowsToHeight: true,
-        //       columnSpacing: ((context).width > 1024)
-        //           ? 56
-        //           : (context).width > 600 && (context).width <= 1024
-        //               ? 20
-        //               : 20,
-        //       source: dts,
-        //       //dataRowHeight: ,
-        //       columns: <DataColumn>[
-        //         DataColumn(
-        //             label: FormHeading2(
-        //           text: "Order ID",
-        //         )),
-        //         DataColumn(label: FormHeading2(text: "Order Ref Num")),
-        //         DataColumn(label: FormHeading2(text: "Head of Allocation")),
-        //         DataColumn(label: FormHeading2(text: "Manufacturer/PU")),
-        //         DataColumn(label: FormHeading2(text: "Order Date")),
-        //         DataColumn(label: FormHeading2(text: "Order Description")),
-        //       ],
-        //     )),
+              columnSpacing: ((context).width > 1024)
+                  ? 56
+                  : (context).width > 600 && (context).width <= 1024
+                      ? 20
+                      : 20,
+              source: DTS(),
+              //dataRowHeight: ,
+              columns: <DataColumn>[
+                DataColumn(
+                    label: FormHeading2(
+                  text: "Order ID",
+                )),
+                DataColumn(label: FormHeading2(text: "Order Ref Num")),
+                DataColumn(label: Expanded(child:FormHeading2(text: "Head of Allocation"))),
+                DataColumn(label: FormHeading2(text: "Manufacturer/PU")),
+                DataColumn(label: FormHeading2(text: "Order Date")),
+                DataColumn(label: FormHeading2(text: "Order Description")),
+              ],
+            )),
 
-        //table(),
+       
 
-      //   Flexible(child: 
-      //   LayoutBuilder(
-      //       builder: (BuildContext context, BoxConstraints constraints) {
-      //     return 
+        const SizedBox(
+          height: 20,
+        ),
 
-        Expanded(child: 
-        LayoutBuilder(builder: (context, constraint) {
-    return Column(children: [
-      SizedBox(
-          height: constraint.maxHeight - datapagerHeight,
-          width: constraint.maxWidth,
-          child: _buildDataGrid(constraint)),
-      Container(
-          height: datapagerHeight,
-          child: SfDataPager(
-            delegate: orderDataSource,
-            pageCount: orders.length / _rowsPerPage,
-            direction: Axis.horizontal,
-          ))
-    ]);
-  })),
-        Column(
-            children: [
-              Container(
-                height: MediaQuery.of(context).size.height - datapagerHeight,
-                //height: 800,
-                child: Obx(()=>
-                SfDataGrid(
-                    source: orderDataSource,
-                    rowsPerPage: int.parse(_entry.value),
-                    columnWidthMode: ColumnWidthMode.fitByColumnName,
-                    columns: <GridColumn>[
         
-      ]),)
-              ),
-              Container(
-                  height: datapagerHeight,
-                  child: Obx(()=>
-                  SfDataPager(
-                    delegate: orderDataSource,
-                    visibleItemsCount: int.parse(_entry.value),
-                    availableRowsPerPage: [2,4,5,10,15, 20,25, 30],
-                    onRowsPerPageChanged: (int? rowsPerPage) {
-                      // setState(() {
-                        _rowsPerPage = rowsPerPage!;
-                        orderDataSource.updateDataGriDataSource();
-                      // });
-                    },
-                    pageCount:
-                        ((orders.length / _rowsPerPage).ceil()).toDouble(),
-                  ))),
-            ],
-          ),
-      //       })),
-        //}),
-
-     
-
 
         const SizedBox(
           height: 30,
         ),
+
+        Obx(() => 
         Container(
-          child: (newOrder == false)
-              ? Container(
-                  child: Column(
+            child: (_selectedRow.value != '-1')
+                ? Container(child: 
+                Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      FormHeading1(text: "New Order: "),
+                      FormHeading2(
+                          text: "Order details for Order Id :" +
+                              '${order.getOrders()[int.parse(_selectedRow.value)].orderId}'),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       Row(
                         children: [
                           Expanded(
                               child:
                                   LabelText(text: "Order Reference Number:")),
-                          Expanded(child: InputField()),
+                          Expanded(child: TextContent(text: '${order.getOrders()[int.parse(_selectedRow.value)].orderRefNum}')),
                           const SizedBox(
                             width: 20,
                           ),
                           Expanded(
                               child: LabelText(text: "Head of Allocation:")),
-                          Expanded(child: InputField()),
+                          Expanded(child: TextContent(text: '${order.getOrders()[int.parse(_selectedRow.value)].headOfAllocation}')),
                         ],
                       ),
                       const SizedBox(
@@ -343,10 +387,6 @@ class form extends StatelessWidget {
                           Expanded(
                               flex: 1,
                               child: LabelText(text: "Financial Year")),
-                          // const SizedBox(
-                          //   width: 30,
-                          // ),
-                          //),
                           Expanded(
                             flex: 1,
                             child: Obx(() => DropdownButton<String>(
@@ -370,11 +410,9 @@ class form extends StatelessWidget {
                                   ),
                                 )),
                           ),
-
                           const SizedBox(
                             width: 40,
                           ),
-
                           Expanded(
                             child: LabelText(text: "Production Unit"),
                           ),
@@ -418,288 +456,361 @@ class form extends StatelessWidget {
                           Expanded(
                               flex: 1,
                               child: LabelText(text: "Order Description")),
-                          Expanded(flex: 3, child: InputField()),
+                          Expanded(flex: 3, child:TextContent(text: '${order.getOrders()[int.parse(_selectedRow.value)].orderDescription}')),
                         ],
                       ),
                       const SizedBox(
                         height: 40,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.start,
+                      //   children: [
+                      //     Button(
+                      //       label: "Add Row",
+                      //       color: Colors.orangeAccent,
+                      //       callback: () {
+                      //         no_of_rows.value = no_of_rows.value + 1;
+                      //         print(no_of_rows.value);
+                      //       },
+                      //     )
+                      //   ],
+                      // ),
+                    ],
+                  ))
+                : Container()),
+                ),
+
+        Obx(() => Container(
+              child: (newOrder == true)
+                  ? Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Button(label: "Add Row", color: Colors.orangeAccent)
+                          FormHeading1(text: "New Order: "),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: LabelText(
+                                      text: "Order Reference Number:")),
+                              Expanded(child: InputField()),
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              Expanded(
+                                  child:
+                                      LabelText(text: "Head of Allocation:")),
+                              Expanded(child: InputField()),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                  flex: 1,
+                                  child: LabelText(text: "Financial Year")),
+                              Expanded(
+                                flex: 1,
+                                child: Obx(() => DropdownButton<String>(
+                                      items: _curr
+                                          .map((String dropDownStringItem) {
+                                        return DropdownMenuItem<String>(
+                                          value: dropDownStringItem,
+                                          child: Text(
+                                            dropDownStringItem,
+                                            style: const TextStyle(
+                                                fontSize: 14.0,
+                                                color: Colors.black),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      onChanged: (newValue) {
+                                        _currency.value = newValue.toString();
+                                      },
+                                      value: _currency.value,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    )),
+                              ),
+                              const SizedBox(
+                                width: 40,
+                              ),
+                              Expanded(
+                                child: LabelText(text: "Production Unit"),
+                              ),
+                              Expanded(
+                                  child: Obx(() => DropdownButton<String>(
+                                        items: _curr
+                                            .map((String dropDownStringItem) {
+                                          return DropdownMenuItem<String>(
+                                            value: dropDownStringItem,
+                                            child: Text(
+                                              dropDownStringItem,
+                                              style: const TextStyle(
+                                                  fontSize: 14.0,
+                                                  color: Colors.black),
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: (newValue) {
+                                          _currency.value = newValue.toString();
+                                        },
+                                        value: _currency.value,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ))),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                  flex: 1,
+                                  child: LabelText(text: "Order Date")),
+                              Expanded(
+                                  flex: 1,
+                                  child: CustomDateField(label: "DD/MM/YYYY")),
+                              const SizedBox(
+                                width: 40,
+                              ),
+                              Expanded(
+                                  flex: 1,
+                                  child: LabelText(text: "Order Description")),
+                              Expanded(flex: 3, child: InputField()),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 40,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Button(
+                                label: "Add Row",
+                                color: Colors.orangeAccent,
+                                callback: () {
+                                  no_of_rows.value = no_of_rows.value + 1;
+                                  //print(no_of_rows.value);
+                                },
+                              )
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          AdaptiveScrollbar(
+                              underColor: Colors.blueGrey.withOpacity(0.3),
+                              sliderDefaultColor:
+                                  Colors.orangeAccent.withOpacity(0.5),
+                              sliderActiveColor: Colors.orangeAccent,
+                              controller: _verticalScrollController2,
+                              child: SingleChildScrollView(
+                                  controller: _verticalScrollController2,
+                                  scrollDirection: Axis.vertical,
+                                  child: SingleChildScrollView(
+                                      controller: _horizontalScrollController2,
+                                      scrollDirection: Axis.horizontal,
+                                      child: Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Obx(() => DataTable(
+                                                columnSpacing: (width > 800 &&
+                                                        width < 1200)
+                                                    ? 25
+                                                    : (width > 1200)
+                                                        ? 25
+                                                        : 20,
+                                                headingRowColor:
+                                                    MaterialStateColor
+                                                        .resolveWith((states) =>
+                                                            Colors.orangeAccent
+                                                                .shade200),
+                                                columns: [
+                                                  DataColumn(
+                                                      label: FormHeading2(
+                                                    text: "Zone",
+                                                  )),
+                                                  DataColumn(
+                                                      label: FormHeading2(
+                                                    text: "Coach Type",
+                                                  )),
+                                                  DataColumn(
+                                                      label: FormHeading2(
+                                                    text: "No of Coach",
+                                                  )),
+                                                  DataColumn(
+                                                      label: FormHeading2(
+                                                    text: "Requirement Type",
+                                                  )),
+                                                  DataColumn(
+                                                      label: FormHeading2(
+                                                    text: "Train No",
+                                                  )),
+                                                  DataColumn(
+                                                      label: FormHeading2(
+                                                    text: "Pink Book No",
+                                                  )),
+                                                  DataColumn(
+                                                      label: FormHeading2(
+                                                    text: "Coach Generated",
+                                                  )),
+                                                  DataColumn(
+                                                      label: FormHeading2(
+                                                    text: "Coach TurnOut",
+                                                  )),
+                                                ],
+                                                rows: List.generate(
+                                                  no_of_rows.value,
+                                                  (index) {
+                                                    //var myAttenList = controller.myPackageList[index];
+                                                    return DataRow(cells: [
+                                                      DataCell(DropdownButton<
+                                                          String>(
+                                                        items: _curr.map((String
+                                                            dropDownStringItem) {
+                                                          return DropdownMenuItem<
+                                                              String>(
+                                                            value:
+                                                                dropDownStringItem,
+                                                            child: Text(
+                                                              dropDownStringItem,
+                                                              style: const TextStyle(
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  color: Colors
+                                                                      .black),
+                                                            ),
+                                                          );
+                                                        }).toList(),
+                                                        onChanged: (newValue) {
+                                                          _currency.value =
+                                                              newValue
+                                                                  .toString();
+                                                        },
+                                                        value: _currency.value,
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                        ),
+                                                      )),
+                                                      DataCell(DropdownButton<
+                                                          String>(
+                                                        items: _curr.map((String
+                                                            dropDownStringItem) {
+                                                          return DropdownMenuItem<
+                                                              String>(
+                                                            value:
+                                                                dropDownStringItem,
+                                                            child: Text(
+                                                              dropDownStringItem,
+                                                              style: const TextStyle(
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  color: Colors
+                                                                      .black),
+                                                            ),
+                                                          );
+                                                        }).toList(),
+                                                        onChanged: (newValue) {
+                                                          _currency.value =
+                                                              newValue
+                                                                  .toString();
+                                                        },
+                                                        value: _currency.value,
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                        ),
+                                                      )),
+                                                      DataCell(InputField(
+                                                        placeholder:
+                                                            "No Of Coach",
+                                                      )),
+                                                      DataCell(DropdownButton<
+                                                          String>(
+                                                        items: _curr.map((String
+                                                            dropDownStringItem) {
+                                                          return DropdownMenuItem<
+                                                              String>(
+                                                            value:
+                                                                dropDownStringItem,
+                                                            child: Text(
+                                                              dropDownStringItem,
+                                                              style: const TextStyle(
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  color: Colors
+                                                                      .black),
+                                                            ),
+                                                          );
+                                                        }).toList(),
+                                                        onChanged: (newValue) {
+                                                          _currency.value =
+                                                              newValue
+                                                                  .toString();
+                                                        },
+                                                        value: _currency.value,
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                        ),
+                                                      )),
+                                                      DataCell(InputField(
+                                                        placeholder: "Train No",
+                                                      )),
+                                                      DataCell(InputField(
+                                                        placeholder:
+                                                            "Pink Book No",
+                                                      )),
+                                                      DataCell(InputField()),
+                                                      DataCell(InputField()),
+                                                    ]);
+                                                  },
+                                                ).toList(),
+
+                                                //buildListOfDataRows(context)
+                                              ))))))
                         ],
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      AdaptiveScrollbar(
-                          //width: 2,
-                          //sliderHeight: 2,
-                          underColor: Colors.blueGrey.withOpacity(0.3),
-                          sliderDefaultColor:
-                              Colors.orangeAccent.withOpacity(0.5),
-                          sliderActiveColor: Colors.orangeAccent,
-                          controller: _verticalScrollController2,
-                          child: SingleChildScrollView(
-                              controller: _verticalScrollController2,
-                              scrollDirection: Axis.vertical,
-                              child: SingleChildScrollView(
-                                  controller: _horizontalScrollController2,
-                                  scrollDirection: Axis.horizontal,
-                                  child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          right: 8.0, bottom: 16.0),
-                                      child: DataTable(columnSpacing: 35,
-                                          //headingRowColor:
-                                          //  MaterialStateColor.resolveWith(
-                                          //    (states) => Colors
-                                          //      .orangeAccent.shade200),
-                                          columns: [
-                                            DataColumn(
-                                                label: FormHeading2(
-                                              text: "Zone",
-                                            )),
-                                            DataColumn(
-                                                label: FormHeading2(
-                                              text: "Coach Type",
-                                            )),
-                                            DataColumn(
-                                                label: FormHeading2(
-                                              text: "No of Coach",
-                                            )),
-                                            DataColumn(
-                                                label: FormHeading2(
-                                              text: "Requirement Type",
-                                            )),
-                                            DataColumn(
-                                                label: FormHeading2(
-                                              text: "Train No",
-                                            )),
-                                            DataColumn(
-                                                label: FormHeading2(
-                                              text: "Pink Book No",
-                                            )),
-                                          ], rows: [
-                                        DataRow(cells: [
-                                          DataCell(DropdownButton<String>(
-                                            items: _curr.map(
-                                                (String dropDownStringItem) {
-                                              return DropdownMenuItem<String>(
-                                                value: dropDownStringItem,
-                                                child: Text(
-                                                  dropDownStringItem,
-                                                  style: const TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors.black),
-                                                ),
-                                              );
-                                            }).toList(),
-                                            onChanged: (newValue) {
-                                              _currency.value =
-                                                  newValue.toString();
-                                            },
-                                            value: _currency.value,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          )),
-                                          DataCell(DropdownButton<String>(
-                                            items: _curr.map(
-                                                (String dropDownStringItem) {
-                                              return DropdownMenuItem<String>(
-                                                value: dropDownStringItem,
-                                                child: Text(
-                                                  dropDownStringItem,
-                                                  style: const TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors.black),
-                                                ),
-                                              );
-                                            }).toList(),
-                                            onChanged: (newValue) {
-                                              _currency.value =
-                                                  newValue.toString();
-                                            },
-                                            value: _currency.value,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          )),
-                                          DataCell(InputField(
-                                            placeholder: "No Of Coach",
-                                          )),
-                                          DataCell(DropdownButton<String>(
-                                            items: _curr.map(
-                                                (String dropDownStringItem) {
-                                              return DropdownMenuItem<String>(
-                                                value: dropDownStringItem,
-                                                child: Text(
-                                                  dropDownStringItem,
-                                                  style: const TextStyle(
-                                                      fontSize: 14.0,
-                                                      color: Colors.black),
-                                                ),
-                                              );
-                                            }).toList(),
-                                            onChanged: (newValue) {
-                                              _currency.value =
-                                                  newValue.toString();
-                                            },
-                                            value: _currency.value,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          )),
-                                          DataCell(InputField(
-                                            placeholder: "Train Number",
-                                          )),
-                                          DataCell(InputField(
-                                            placeholder: "Pink Book No",
-                                          )),
-                                        ])
-                                      ])))))
-                    ],
-                  ),
-                )
-              : Container(),
-        )
+                    )
+                  : Container(),
+            ))
       ],
-    );
+    ));
   }
 
-  Widget _buildDataGrid(BoxConstraints constraint){
-    return SfDataGrid(
-      source: orderDataSource,
-      columnWidthMode: ColumnWidthMode.fill,
-      columns: <GridColumn>[
-        GridColumn(
-            columnName: 'Order Id',
-            label: Container(
-                padding: EdgeInsets.all(16.0),
-                alignment: Alignment.center,
-                child: Text(
-                  'ID',
-                ))),
-        GridColumn(
-            columnName: 'Order Ref No',
-            label: Container(
-                padding: EdgeInsets.all(16.0),
-                alignment: Alignment.center,
-                child: Text('Order Ref No'))),
-        GridColumn(
-            columnName: 'Head of Allocation',
-            width: 120,
-            label: Container(
-                padding: EdgeInsets.all(16.0),
-                alignment: Alignment.centerLeft,
-                child: Text('Head of Allocation'))),
-        GridColumn(
-            columnName: 'Manufacturer',
-            label: Container(
-                padding: EdgeInsets.all(16.0),
-                alignment: Alignment.center,
-                child: Text('Manufacturer'))),
-        GridColumn(
-            columnName: 'Order Date',
-            label: Container(
-                padding: EdgeInsets.all(16.0),
-                alignment: Alignment.center,
-                child: Text('Order Date'))),
-        GridColumn(
-            columnName: 'Order Description',
-            label: Container(
-                padding: EdgeInsets.all(16.0),
-                alignment: Alignment.center,
-                child: Text('Order Description'))),
-      ]);
-  }
+ 
 
-  // Widget table(){
-  //   return Scaffold(
-  //     body:LayoutBuilder(builder:(context, constraints) {
-  //       return Column(
-  //           children: [
-  //             Container(
-  //               height: constraints.maxHeight - datapagerHeight,
-  //               //height: 800,
-  //               child: Obx(()=>
-  //               SfDataGrid(
-  //                   source: orderDataSource,
-  //                   rowsPerPage: int.parse(_entry.value),
-  //                   columnWidthMode: ColumnWidthMode.fitByColumnName,
-  //                   columns: <GridColumn>[
-  //       GridColumn(
-  //           columnName: 'Order Id',
-  //           label: Container(
-  //               padding: EdgeInsets.all(16.0),
-  //               alignment: Alignment.center,
-  //               child: Text(
-  //                 'ID',
-  //               ))),
-  //       GridColumn(
-  //           columnName: 'Order Ref No',
-  //           label: Container(
-  //               padding: EdgeInsets.all(16.0),
-  //               alignment: Alignment.center,
-  //               child: Text('Order Ref No'))),
-  //       GridColumn(
-  //           columnName: 'Head of Allocation',
-  //           width: 120,
-  //           label: Container(
-  //               padding: EdgeInsets.all(16.0),
-  //               alignment: Alignment.centerLeft,
-  //               child: Text('Head of Allocation'))),
-  //       GridColumn(
-  //           columnName: 'Manufacturer',
-  //           label: Container(
-  //               padding: EdgeInsets.all(16.0),
-  //               alignment: Alignment.center,
-  //               child: Text('Manufacturer'))),
-  //       GridColumn(
-  //           columnName: 'Order Date',
-  //           label: Container(
-  //               padding: EdgeInsets.all(16.0),
-  //               alignment: Alignment.center,
-  //               child: Text('Order Date'))),
-  //       GridColumn(
-  //           columnName: 'Order Description',
-  //           label: Container(
-  //               padding: EdgeInsets.all(16.0),
-  //               alignment: Alignment.center,
-  //               child: Text('Order Description'))),
-  //     ]),)
-  //             ),
-  //             Container(
-  //                 height: datapagerHeight,
-  //                 child: Obx(()=>
-  //                 SfDataPager(
-  //                   delegate: orderDataSource,
-  //                   visibleItemsCount: int.parse(_entry.value),
-  //                   availableRowsPerPage: [2,4,5,10,15, 20,25, 30],
-  //                   onRowsPerPageChanged: (int? rowsPerPage) {
-  //                     // setState(() {
-  //                       _rowsPerPage = rowsPerPage!;
-  //                       orderDataSource.updateDataGriDataSource();
-  //                     // });
-  //                   },
-  //                   pageCount:
-  //                       ((orders.length / _rowsPerPage).ceil()).toDouble(),
-  //                 ))),
-  //           ],
-  //         );
-  //     }));
-    
-  // }
+  Widget placeOrderforMobile(BuildContext context) {
+    // var cardLength = int.parse(_entry.value) > order.getOrders().length
+    //     ? order.getOrders().length
+    //     : int.parse(_entry.value);
 
-  Widget placeOrderforMobile() {
+    var rem = order.getOrders().length - int.parse(_entry.value);
+    //print(order.getOrders().length);
+
+    var stIndex = 0.obs;
+    //var endIndex =  
     return SafeArea(
         child: SingleChildScrollView(
             child: Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          children: [Button(label: "+Place Order", color: Colors.orangeAccent)],
+          children: [
+            Button(
+              label: "+Place Order",
+              color: Colors.orangeAccent,
+              callback: () {
+                Get.to(NewOrder());
+                //Get.to(ModifyOrder());
+              },
+            )
+          ],
         ),
         const SizedBox(
           height: 20,
@@ -733,7 +844,10 @@ class form extends StatelessWidget {
                     ),
                   )),
             ),
-            new Spacer(),
+            //new Spacer(),
+            const SizedBox(
+              width: 20,
+            ),
             Expanded(
               child: Button(
                 label: "Get List",
@@ -768,216 +882,221 @@ class form extends StatelessWidget {
                     color: Colors.white,
                   ),
                 )),
-
-            new Spacer(),
-
-            IconButtonWidget(
-              icon: Icons.content_copy,
-              size: 18,
-              backgroundColor: Colors.orangeAccent.shade200,
-            ),
-            // Button(
-            //   label: "COPY",
-            //   color: Colors.orangeAccent,
-            //   width: 80,
-            // ),
             const SizedBox(
               width: 10,
+            ),
+            IconButtonWidget(
+              icon: Icons.content_copy,
+              size: 14,
+              backgroundSize: 16,
+              backgroundColor: Colors.orangeAccent.shade200,
+            ),
+            const SizedBox(
+              width: 5,
             ),
             IconButtonWidget(
               icon: FontAwesomeIcons.fileCsv,
-              size: 18,
+              size: 14,
+              backgroundSize: 16,
               backgroundColor: Colors.orangeAccent.shade200,
+              callback: (){
+                createCSVForWeb(stIndex.value,int.parse(_entry.value));
+              },
             ),
-            // Button(
-            //   label: "CSV",
-            //   color: Colors.orangeAccent,
-            //   width: 80,
-            // ),
             const SizedBox(
-              width: 10,
+              width: 5,
             ),
             IconButtonWidget(
               icon: FontAwesomeIcons.fileExcel,
-              size: 18,
+              size: 14,
+              backgroundSize: 16,
               backgroundColor: Colors.orangeAccent.shade200,
+              callback: (){
+                //tryExcel(Globalkey: _key);
+                createExcel(stIndex.value,int.parse(_entry.value));
+              },
             ),
-            // Button(
-            //   label: "EXCEL",
-            //   color: Colors.orangeAccent,
-            //   width: 90,
-            // ),
             const SizedBox(
-              width: 10,
+              width: 5,
             ),
             IconButtonWidget(
               icon: FontAwesomeIcons.print,
-              size: 18,
+              size: 14,
+              backgroundSize: 16,
               backgroundColor: Colors.orangeAccent.shade200,
+              callback: (){
+                Get.to(createPDF(),arguments: [stIndex.value, int.parse(_entry.value)]);
+              },
             ),
           ],
         ),
         const SizedBox(
           height: 20,
         ),
-        for (var i = 0; i < order.getOrders().length; i++)
-          // Column(children: [
-          //   const SizedBox(
-          //     height: 10,
-          //   ),
 
-          //     Expanded(
-          //   child: ScrollSnapList(
-          //     onItemFocus: _onItemFocus,
-          //     itemSize: 150,
-          //     itemBuilder: ,
-          //     itemCount: order.getOrders().length,
-          //     dynamicItemSize: true,
-          //     // dynamicSizeEquation: customEquation, //optional
-          //   ),
-          // ),
+        // (int.parse(_entry.value) > order.getOrders().length
+        //                     ? order.getOrders().length
+        //                     : int.parse(_entry.value))
 
-          Card(
-            elevation: 5,
-            child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Column(children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: LabelText(text: "Order Id"),
-                      ),
-                      Expanded(
-                          child: TextContent(
-                              text: "${order.getOrders()[i].orderId}"))
-                    ],
-                  ),
 
-                  //const Divider(),
-                  const SizedBox(
-                    height: 10,
-                  ),
+        // (order.getOrders().length - ind.value < (int.parse(_entry.value)) ? ind.value + order.getOrders().length - ind.value : ind.value + int.parse(_entry.value)
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: LabelText(text: "Order Ref No"),
-                      ),
-                      Expanded(
-                          child: TextContent(
-                              text: "${order.getOrders()[i].orderRefNum}"))
-                    ],
-                  ),
+        Obx(() => 
+        SingleChildScrollView(physics: ScrollPhysics(),child:
+        Column(children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: ((order.getOrders().length - stIndex.value < int.parse(_entry.value) ?  order.getOrders().length : stIndex.value + int.parse(_entry.value)) - stIndex.value),
+          itemBuilder: (context, index){
+            return InkWell(
+              onTap: (){
+                      _selectedCard.value = (stIndex.value + index).toString();
+                      //print(stIndex.value);
+                      //print(index);
+                      print(_selectedCard);
+                      // //Get.to(NewOrder());
+                       Get.to(ModifyOrder(),arguments: "${_selectedCard}");
+                      // //Navigator.push(context, MaterialPageRoute(builder: (context)=>ModifyOrder(ord: '${i}')));
+                      // //print(ind);
+                    },
 
-                  //const Divider(),
-                  const SizedBox(
-                    height: 10,
-                  ),
+              child:
+                  Card(
+                    elevation: 5,
+                    child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Column(children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: LabelText(text: "Order Id"),
+                              ),
+                              Expanded(
+                                  child: TextContent(
+                                      text: "${order.getOrders()[stIndex.value + index].orderId}")),
+                              Expanded(
+                                child: LabelText(text: "Order Ref No"),
+                              ),
+                              Expanded(
+                                  child: TextContent(
+                                      text:
+                                          "${order.getOrders()[stIndex.value + index].orderRefNum}"))
+                            ],
+                          ),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: LabelText(text: "Head of Allocation"),
-                      ),
-                      Expanded(
-                          child: TextContent(
-                              text: "${order.getOrders()[i].headOfAllocation}"))
-                    ],
-                  ),
+                          //const Divider(),
+                          const SizedBox(
+                            height: 10,
+                          ),
 
-                  //const Divider(),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: LabelText(text: "Order Date"),
+                              ),
+                              Expanded(
+                                  child: TextContent(
+                                      text:
+                                          "${order.getOrders()[stIndex.value + index].orderDate}")),
+                              Expanded(
+                                child: LabelText(text: "Manufacturer"),
+                              ),
+                              Expanded(
+                                  child: TextContent(
+                                text: "${order.getOrders()[stIndex.value + index].Manufacturer}",
+                              ))
+                            ],
+                          ),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: LabelText(text: "Order Date"),
-                      ),
-                      Expanded(
-                          child: TextContent(
-                              text: "${order.getOrders()[i].orderDate}"))
-                    ],
-                  ),
-                  //const Divider(),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                          //const Divider(),
+                          const SizedBox(
+                            height: 10,
+                          ),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: LabelText(text: "Manufacturer"),
-                      ),
-                      Expanded(
-                          child: TextContent(
-                        text: "${order.getOrders()[i].Manufacturer}",
-                      ))
-                    ],
-                  ),
-                  //const Divider(),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: LabelText(text: "Order Description"),
-                      ),
-                      Expanded(
-                          child: TextContent(
-                        text: "${order.getOrders()[i].orderDescription}",
-                      )),
-                    ],
-                  ),
-                ])),
-          )
+                          Row(
+                            children: [
+                              Expanded(
+                                child: LabelText(text: "Head of Allocation"),
+                              ),
+                              Expanded(
+                                  child: TextContent(
+                                      text:
+                                          "${order.getOrders()[stIndex.value + index].headOfAllocation}"))
+                            ],
+                          ),
+
+                          const SizedBox(
+                            height: 10,
+                          ),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: LabelText(text: "Order Description"),
+                              ),
+                              Expanded(
+                                  child: TextContent(
+                                text:
+                                    "${order.getOrders()[stIndex.value + index].orderDescription}",
+                              )),
+                            ],
+                          ),
+                        ])),
+                  )
+
+              
+            );
+        }),]))),
+
+        
+
+        const SizedBox(
+          height: 20,
+        ),
+
+        Obx(()=>
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButtonWidget(
+                icon: Icons.arrow_back_ios,
+                size: 14,
+                backgroundColor: (stIndex.value - int.parse(_entry.value) >= 0) ? Colors.orangeAccent : Colors.grey,
+                backgroundSize: 16,callback: (){
+                  if(stIndex.value - int.parse(_entry.value) >= 0){
+                    stIndex.value = stIndex.value - int.parse(_entry.value);
+                  }
+                },),
+            const SizedBox(
+              width: 10,
+            ),
+            IconButtonWidget(
+                icon: Icons.arrow_forward_ios,
+                size: 14,
+                backgroundColor:(stIndex.value + int.parse(_entry.value) < order.getOrders().length) ? Colors.orangeAccent : Colors.grey,
+                
+                backgroundSize: 16,callback: (){
+                  if(stIndex.value + int.parse(_entry.value) < order.getOrders().length){
+                    stIndex.value = stIndex.value + int.parse(_entry.value);
+                  }
+                  
+                },),
+          ],
+        ),),
+        const SizedBox(
+          height: 20,
+        ),
+
+        // Container(
+        //   child: (_selectedRow.value != '-1') ? Get.to(ModifyOrder()),
+        // )
       ],
-    ))
-        //],
-        //),
-
-        //)
-        );
+    )));
   }
 }
 
-// class OrderDataSource extends DataGridSource {
-//   List<DataGridRow>  _orders = [];
-//   //List<order> _data = [];
 
-//   @override
-//   List<DataGridRow> get rows =>  _orders;
-
-//   OrderDataSource({required List<order> orders}) {
-//      _orders = orders.map<DataGridRow>((e) => DataGridRow(cells: [
-//               DataGridCell<double>(columnName: 'id', value: e.orderId),
-//               DataGridCell<String>(columnName: 'Order Ref No', value: e.orderRefNum),
-//               DataGridCell<String>(
-//                   columnName: 'Head of Allocation', value: e.headOfAllocation),
-//               DataGridCell<String>(columnName: 'Manufacturer', value: e.Manufacturer),
-//               DataGridCell<String>(
-//                   columnName: 'Order Date', value: e.orderDate),
-//               DataGridCell<String>(columnName: 'Order Description', value: e.orderDescription),
-//             ]))
-//         .toList();
-//   }
-
-  
-
-//   @override
-//   DataGridRowAdapter? buildRow(DataGridRow row) {
-//     return DataGridRowAdapter(
-//         cells: row.getCells().map<Widget>((dataGridCell) {
-//       return Container(
-//         alignment: Alignment.center,
-//         padding: EdgeInsets.all(16.0),
-//         child: Text(dataGridCell.value.toString()),
-//       );
-//     }).toList());
-//   }
-// }
 
 class OrderDataSource extends DataGridSource {
   /// Creates the employee data source class with required details.
@@ -990,14 +1109,17 @@ class OrderDataSource extends DataGridSource {
   void buildDataGridRow() {
     _orderDataGridRows = _paginatedRows
         .map<DataGridRow>((e) => DataGridRow(cells: [
-               DataGridCell<double>(columnName: 'id', value: e.orderId),
-              DataGridCell<String>(columnName: 'Order Ref No', value: e.orderRefNum),
+              DataGridCell<double>(columnName: 'id', value: e.orderId),
+              DataGridCell<String>(
+                  columnName: 'Order Ref No', value: e.orderRefNum),
               DataGridCell<String>(
                   columnName: 'Head of Allocation', value: e.headOfAllocation),
-              DataGridCell<String>(columnName: 'Manufacturer', value: e.Manufacturer),
+              DataGridCell<String>(
+                  columnName: 'Manufacturer', value: e.Manufacturer),
               DataGridCell<String>(
                   columnName: 'Order Date', value: e.orderDate),
-              DataGridCell<String>(columnName: 'Order Description', value: e.orderDescription),
+              DataGridCell<String>(
+                  columnName: 'Order Description', value: e.orderDescription),
             ]))
         .toList();
   }
@@ -1023,15 +1145,14 @@ class OrderDataSource extends DataGridSource {
 
   @override
   Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) {
-    final int _startIndex = newPageIndex * _rowsPerPage;
-    int _endIndex = _startIndex + _rowsPerPage;
+    final int _startIndex = newPageIndex * _rowsPerPage.value;
+    int _endIndex = _startIndex + _rowsPerPage.value;
     if (_endIndex > _orderData.length) {
       _endIndex = _orderData.length;
     }
 
     /// Get particular range from the sorted collection.
-    if (_startIndex < _orderData.length &&
-        _endIndex <= _orderData.length) {
+    if (_startIndex < _orderData.length && _endIndex <= _orderData.length) {
       _paginatedRows = _orderData.getRange(_startIndex, _endIndex).toList();
     } else {
       _paginatedRows = <order>[];
@@ -1047,223 +1168,63 @@ class OrderDataSource extends DataGridSource {
 }
 
 
-//class PaginatedDataGridSource extends DataGridSource {
-  /// Creates the employee data source class with required details.
-  // OrderDataSource({required List<order> orderData}) {
-  //   _orderData = orderData
-  //       .map<DataGridRow>((e) => DataGridRow(cells: [
-  //             DataGridCell<double>(columnName: 'id', value: e.orderId),
-  //             DataGridCell<String>(columnName: 'Order Ref No', value: e.orderRefNum),
-  //             DataGridCell<String>(
-  //                 columnName: 'Head of Allocation', value: e.headOfAllocation),
-  //             DataGridCell<String>(columnName: 'Manufacturer', value: e.Manufacturer),
-  //             DataGridCell<String>(
-  //                 columnName: 'Order Date', value: e.orderDate),
-  //             DataGridCell<String>(columnName: 'Order Description', value: e.orderDescription),
-  //           ])
-  //           )
-  //       .toList();
-  // }
 
-  // List<DataGridRow> get rows => _paginatedData.map<DataGridRow>((e) => DataGridRow(cells: [
-  //   DataGridCell<double>(columnName: 'id', value: e.orderId),
-  //             DataGridCell<String>(columnName: 'Order Ref No', value: e.orderRefNum),
-  //             DataGridCell<String>(
-  //                 columnName: 'Head of Allocation', value: e.headOfAllocation),
-  //             DataGridCell<String>(columnName: 'Manufacturer', value: e.Manufacturer),
-  //             DataGridCell<String>(
-  //                 columnName: 'Order Date', value: e.orderDate),
-  //             DataGridCell<String>(columnName: 'Order Description', value: e.orderDescription),
-  // ])).toList();
+class DTS extends DataTableSource {
+  @override
+  DataRow getRow(int index) {
+    return DataRow.byIndex(
+      index: index,
+      onSelectChanged: (value) {
+        _selectedRow.value = index.toString();
+        //print(_selectedRow.value);
+      },
+      color: MaterialStateColor.resolveWith(
+        (states) {
+          if (_selectedRow.value == index.toString()) {
+            return Colors.grey;
+          } else {
+            return Colors.white;
+          }
+        },
+      ),
+      //_selectedRow.value == index.toString()
+      //         ? MaterialStateColor.resolveWith((states) => Colors.grey)
+      //         : MaterialStateColor.resolveWith((states) => Colors.transparent),
 
-  //List<DataGridRow> _orderData = [];
-
-  // @override
-  // List<DataGridRow> get rows => _orderData;
-
-//   @override
-//   DataGridRowAdapter buildRow(DataGridRow row) {
-//     return DataGridRowAdapter(
-//         cells: row.getCells().map<Widget>((e) {
-//       return Container(
-//         alignment: Alignment.center,
-//         padding: EdgeInsets.all(8.0),
-//         child: Text(e.value.toString()),
-//       );
-//     }).toList());
-//   }
-// }
-
-// class DTS extends DataTableSource {
-//   @override
-//   DataRow getRow(int index) {
-//     return DataRow.byIndex(
-//       index: index,
-//       cells: [
-//         DataCell(Expanded(
-//             child: LabelText(
-//           text: '${order.getOrders()[index].orderId}',
-//         ))),
-//         DataCell(LabelText(
-//           text: '${order.getOrders()[index].orderRefNum}',
-//         )),
-//         DataCell(LabelText(
-//           text: '${order.getOrders()[index].headOfAllocation}',
-//         )),
-//         DataCell(LabelText(
-//           text: '${order.getOrders()[index].Manufacturer}',
-//         )),
-//         DataCell(LabelText(
-//           text: '${order.getOrders()[index].orderDate}',
-//         )),
-//         DataCell(Expanded(
-//             child: LabelText(
-//           text: '${order.getOrders()[index].orderDescription}',
-//         ))),
-//       ],
-//     );
-//   }
-
-//   @override
-//   int get rowCount => 6; // Manipulate this to which ever value you wish
-
-//   @override
-//   bool get isRowCountApproximate => false;
-
-//   @override
-//   int get selectedRowCount => 0;
-// }
-
-class order {
-  final double orderId;
-  final String orderRefNum;
-  final String headOfAllocation;
-  final String Manufacturer;
-  final String orderDate;
-  final String orderDescription;
-  final double financialYear;
-  final String productionUnit;
-
-  order(
-      {required this.orderId,
-      required this.orderRefNum,
-      required this.headOfAllocation,
-      required this.Manufacturer,
-      required this.orderDate,
-      required this.orderDescription,
-      required this.financialYear,
-      required this.productionUnit});
-
-  static List<order> getOrders() {
-    return [
-      order(
-          orderId: 1000,
-          orderRefNum: "RFS2019",
-          headOfAllocation: "",
-          Manufacturer: "DMW",
-          orderDate: "23/5/2022",
-          orderDescription:
-              "M231-WR SDGFJHNGJGHNSKSDNFKLMSLMDFSLFMD,.MG,FJDVKDFSGVNDFKNSKLFMCSKLDSMASKADMALKJEIOJDEJFSDMCFFLKSEFEJOT",
-          financialYear: 2022 - 23,
-          productionUnit: ""),
-      order(
-          orderId: 1000,
-          orderRefNum: "RFS2019",
-          headOfAllocation: "",
-          Manufacturer: "DMW",
-          orderDate: "23/5/2022",
-          orderDescription: "M231-WR",
-          financialYear: 2022 - 23,
-          productionUnit: ""),
-      order(
-          orderId: 1000,
-          orderRefNum: "RFS2019",
-          headOfAllocation: "",
-          Manufacturer: "DMW",
-          orderDate: "23/5/2022",
-          orderDescription: "M231-WR",
-          financialYear: 2022 - 23,
-          productionUnit: ""),
-      order(
-          orderId: 1001,
-          orderRefNum: "RFS2019",
-          headOfAllocation: "",
-          Manufacturer: "DMW",
-          orderDate: "23/5/2022",
-          orderDescription: "M231-WR",
-          financialYear: 2022 - 23,
-          productionUnit: ""),
-      order(
-          orderId: 1002,
-          orderRefNum: "RFS2019",
-          headOfAllocation: "",
-          Manufacturer: "DMW",
-          orderDate: "23/5/2022",
-          orderDescription: "M231-WR",
-          financialYear: 2022 - 23,
-          productionUnit: ""),
-      order(
-          orderId: 1003,
-          orderRefNum: "RFS2019",
-          headOfAllocation: "",
-          Manufacturer: "DMW",
-          orderDate: "23/5/2022",
-          orderDescription: "M231-WR",
-          financialYear: 2022 - 23,
-          productionUnit: ""),
-      order(
-          orderId: 1001,
-          orderRefNum: "RFS2019",
-          headOfAllocation: "",
-          Manufacturer: "DMW",
-          orderDate: "23/5/2022",
-          orderDescription: "M231-WR",
-          financialYear: 2022 - 23,
-          productionUnit: ""),
-      order(
-          orderId: 1002,
-          orderRefNum: "RFS2019",
-          headOfAllocation: "",
-          Manufacturer: "DMW",
-          orderDate: "23/5/2022",
-          orderDescription: "M231-WR",
-          financialYear: 2022 - 23,
-          productionUnit: ""),
-      order(
-          orderId: 1003,
-          orderRefNum: "RFS2019",
-          headOfAllocation: "",
-          Manufacturer: "DMW",
-          orderDate: "23/5/2022",
-          orderDescription: "M231-WR",
-          financialYear: 2022 - 23,
-          productionUnit: ""),
-      order(
-          orderId: 1003,
-          orderRefNum: "RFS2019",
-          headOfAllocation: "",
-          Manufacturer: "DMW",
-          orderDate: "23/5/2022",
-          orderDescription: "M231-WR",
-          financialYear: 2022 - 23,
-          productionUnit: ""),
-    ];
+      cells: [
+        DataCell(LabelText(
+          text: '${order.getOrders()[index].orderId}',
+        )),
+        DataCell(LabelText(
+          text: '${order.getOrders()[index].orderRefNum}',
+        )),
+        DataCell(LabelText(
+          text: '${order.getOrders()[index].headOfAllocation}',
+        )),
+        DataCell(LabelText(
+          text: '${order.getOrders()[index].Manufacturer}',
+        )),
+        DataCell(LabelText(
+          text: '${order.getOrders()[index].orderDate}',
+        )),
+        DataCell(Expanded(child: LabelText(
+          text: '${order.getOrders()[index].orderDescription}'),
+        )),
+      ],
+    );
   }
+
+  @override
+  int get rowCount =>
+      order.getOrders().length; // Manipulate this to which ever value you wish
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get selectedRowCount => 0;
 }
 
-class Train {
-  final Widget zone;
-  final Widget coachType;
-  final Widget noOfCoach;
-  final Widget reqType;
-  final Widget trainNo;
-  final Widget pinkBookNo;
 
-  Train(
-      {required this.zone,
-      required this.coachType,
-      required this.noOfCoach,
-      required this.reqType,
-      required this.trainNo,
-      required this.pinkBookNo});
-}
+
+

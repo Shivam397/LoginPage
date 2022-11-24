@@ -51,6 +51,18 @@ dependencies:
   scroll_snap_list: ^0.9.1
   data_table_2: ^2.3.8
   syncfusion_flutter_datagrid: ^20.3.56
+  syncfusion_flutter_datagrid_export: ^20.3.56-beta
+  syncfusion_flutter_xlsio:
+  open_file: ^3.2.1
+  path_provider: ^2.0.11
+  advanced_datatable: ^0.0.8
+  universal_html: ^2.0.8
+  syncfusion_flutter_pdf: ^20.3.58
+  pdf: ^3.8.4
+  printing: ^5.9.3
+  csv: ^5.0.1
+
+
 
 
 
